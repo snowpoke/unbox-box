@@ -1,4 +1,22 @@
-//! "Wait why did I put a `*` in front of that variable yesterday?" - If `var` is a Box, use `var.unbox_ref()` instead of `&*var` for better readability.
+//! If `var` is a Box, this crate lets you use `var.unbox_ref()` instead of `&*var` for better readability.
+//! 
+//! Instead of 
+//! ```rust
+//! let box = Box::new("Hello, Box!".to_owned());
+//! let ref_to_value = &*box;
+//! ```
+//! this crate allows you to write
+//! ```rust
+//! let box = Box::new("Hello, Box!".to_owned());
+//! let ref_to_value = box.unbox_ref();
+//! ```
+//! which can be easier to read and might help you avoid errors.
+//! 
+//! To use the crate, just import
+//! ```rust
+//! use unbox_box::BoxExt as _;
+//! ```
+//! and the methods will be available to any Box variable within your scope.
 
 #![deny(
     deprecated_in_future,
@@ -26,12 +44,15 @@
 
 use core::ops::{Deref, DerefMut};
 
-trait BoxExt<T: ?Sized>: Deref<Target = T> + DerefMut<Target = T>{
+/// Extends `Box` with the `.unbox_ref()` and `.unbox_mut()` methods.
+pub trait BoxExt<T: ?Sized>: Deref<Target = T> + DerefMut<Target = T>{
+    /// Returns a reference to the data stored in the `Box` element.
     #[allow(clippy::explicit_deref_methods)]
     fn unbox_ref(&self) -> &T {
         &**self
     }
 
+    /// Returns a mutable reference to the data stored in the `Box` element.
     #[allow(clippy::explicit_deref_methods)]
     fn unbox_mut(&mut self) -> &mut T {
         &mut **self
